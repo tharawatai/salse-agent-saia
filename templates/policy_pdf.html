@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html dir="rtl" lang="ar">
+<head>
+    <meta charset="UTF-8">
+    <title>وثيقة التأمين - {{ policy_number }}</title>
+    <style>
+        @page {
+            size: A4;
+            margin: 15mm;
+        }
+        
+        body { 
+            font-family: Arial, sans-serif;
+            font-size: 12px;
+            direction: rtl;
+            color: #333;
+        }
+        
+        .header {
+            background-color: #1a5f7a;
+            color: white;
+            padding: 20px;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        
+        .header h1 {
+            font-size: 26px;
+            margin: 0;
+        }
+        
+        .header p {
+            font-size: 12px;
+            margin: 5px 0 0 0;
+        }
+        
+        .policy-number-box {
+            background-color: #28a745;
+            color: white;
+            padding: 15px;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        
+        .policy-number {
+            font-size: 20px;
+            font-weight: bold;
+        }
+        
+        .section {
+            margin-bottom: 20px;
+        }
+        
+        .section-title {
+            background-color: #1a5f7a;
+            color: white;
+            padding: 10px 15px;
+            font-size: 14px;
+            font-weight: bold;
+            margin-bottom: 0;
+        }
+        
+        .section-content {
+            border: 1px solid #ddd;
+            border-top: none;
+            padding: 15px;
+        }
+        
+        .info-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        .info-table td {
+            padding: 8px;
+            vertical-align: top;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .info-label {
+            font-weight: bold;
+            color: #666;
+            width: 35%;
+        }
+        
+        .info-value {
+            color: #333;
+        }
+        
+        .validity-box {
+            background-color: #e8f5e9;
+            border: 2px solid #28a745;
+            padding: 15px;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        
+        .validity-title {
+            font-size: 14px;
+            color: #28a745;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+        
+        .validity-dates {
+            font-size: 16px;
+        }
+        
+        .premium-box {
+            background-color: #1a5f7a;
+            color: white;
+            padding: 20px;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        
+        .premium-label {
+            font-size: 14px;
+            margin-bottom: 5px;
+        }
+        
+        .premium-amount {
+            font-size: 28px;
+            font-weight: bold;
+        }
+        
+        .stamp-box {
+            text-align: center;
+            margin: 20px 0;
+        }
+        
+        .stamp {
+            display: inline-block;
+            border: 3px solid #1a5f7a;
+            color: #1a5f7a;
+            padding: 10px 30px;
+            font-size: 16px;
+            font-weight: bold;
+        }
+        
+        .footer {
+            background-color: #f5f5f5;
+            padding: 15px;
+            text-align: center;
+            font-size: 10px;
+            color: #666;
+            margin-top: 30px;
+        }
+        
+        .warning {
+            background-color: #fff3cd;
+            border: 1px solid #ffc107;
+            padding: 10px;
+            margin-top: 20px;
+            font-size: 11px;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>وثيقة تأمين المركبات</h1>
+        <p>Motor Insurance Policy - SAIA Insurance</p>
+    </div>
+    
+    <div class="policy-number-box">
+        <div class="policy-number">رقم الوثيقة: {{ policy_number }}</div>
+    </div>
+    
+    <div class="section">
+        <div class="section-title">بيانات المؤمن له</div>
+        <div class="section-content">
+            <table class="info-table">
+                <tr>
+                    <td class="info-label">رقم الهوية:</td>
+                    <td class="info-value">{{ national_id }}</td>
+                </tr>
+                <tr>
+                    <td class="info-label">تاريخ الميلاد:</td>
+                    <td class="info-value">{{ birth_date }}</td>
+                </tr>
+                <tr>
+                    <td class="info-label">رقم الجوال:</td>
+                    <td class="info-value">{{ phone }}</td>
+                </tr>
+            </table>
+        </div>
+    </div>
+    
+    <div class="section">
+        <div class="section-title">بيانات المركبة</div>
+        <div class="section-content">
+            <table class="info-table">
+                <tr>
+                    <td class="info-label">الماركة:</td>
+                    <td class="info-value">{{ vehicle_brand }}</td>
+                </tr>
+                <tr>
+                    <td class="info-label">الموديل:</td>
+                    <td class="info-value">{{ vehicle_model }}</td>
+                </tr>
+                <tr>
+                    <td class="info-label">سنة الصنع:</td>
+                    <td class="info-value">{{ vehicle_year }}</td>
+                </tr>
+                <tr>
+                    <td class="info-label">رقم اللوحة:</td>
+                    <td class="info-value">{{ plate_no }}</td>
+                </tr>
+                <tr>
+                    <td class="info-label">قيمة المركبة:</td>
+                    <td class="info-value">{{ vehicle_value }} ريال</td>
+                </tr>
+            </table>
+        </div>
+    </div>
+    
+    <div class="section">
+        <div class="section-title">تفاصيل التغطية</div>
+        <div class="section-content">
+            <table class="info-table">
+                <tr>
+                    <td class="info-label">شركة التأمين:</td>
+                    <td class="info-value">{{ company_name }}</td>
+                </tr>
+                <tr>
+                    <td class="info-label">نوع التغطية:</td>
+                    <td class="info-value">{{ coverage_type }}</td>
+                </tr>
+                <tr>
+                    <td class="info-label">رقم الفاتورة:</td>
+                    <td class="info-value">{{ invoice_number }}</td>
+                </tr>
+            </table>
+        </div>
+    </div>
+    
+    <div class="validity-box">
+        <div class="validity-title">فترة سريان الوثيقة</div>
+        <div class="validity-dates">
+            من: <strong>{{ issue_date }}</strong> 
+            إلى: <strong>{{ expiry_date }}</strong>
+        </div>
+    </div>
+    
+    <div class="premium-box">
+        <div class="premium-label">قسط التأمين</div>
+        <div class="premium-amount">{{ premium }} ريال</div>
+    </div>
+    
+    <div class="stamp-box">
+        <div class="stamp">وثيقة سارية المفعول</div>
+    </div>
+    
+    <div class="warning">
+        <strong>تنبيه:</strong> هذه الوثيقة صادرة إلكترونياً ولا تحتاج إلى توقيع أو ختم. 
+        يمكن التحقق من صحتها عبر موقع نجم أو تطبيق تأميني.
+    </div>
+    
+    <div class="footer">
+        <p>للاستفسارات: support@saia.sa | www.saia.sa</p>
+        <p>شركة SAIA لوساطة التأمين - مرخصة من البنك المركزي السعودي</p>
+        <p>Powered by SAIA | Bineyes Technology</p>
+    </div>
+</body>
+</html>

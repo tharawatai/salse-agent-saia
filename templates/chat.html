@@ -1,0 +1,664 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SAIA - مساعد التأمين الذكي</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .chat-container {
+            width: 95%;
+            max-width: 700px;
+            height: 95vh;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .chat-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 15px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .chat-header-info {
+            text-align: right;
+        }
+
+        .chat-header h1 {
+            font-size: 22px;
+            margin-bottom: 3px;
+        }
+
+        .chat-header p {
+            font-size: 12px;
+            opacity: 0.9;
+        }
+
+        .stage-badge {
+            background: rgba(255,255,255,0.2);
+            padding: 5px 12px;
+            border-radius: 15px;
+            font-size: 11px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .chat-messages {
+            flex: 1;
+            padding: 15px;
+            overflow-y: auto;
+            background: #f8f9fa;
+        }
+
+        .message {
+            margin-bottom: 12px;
+            display: flex;
+            animation: fadeIn 0.3s;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .message.user {
+            justify-content: flex-end;
+        }
+
+        .message.assistant {
+            justify-content: flex-start;
+        }
+
+        .message-content {
+            max-width: 80%;
+            padding: 12px 16px;
+            border-radius: 18px;
+            word-wrap: break-word;
+            white-space: pre-wrap;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+
+        .message.user .message-content {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-bottom-right-radius: 4px;
+        }
+
+        .message.assistant .message-content {
+            background: white;
+            color: #333;
+            border-bottom-left-radius: 4px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        }
+
+        .chat-input {
+            padding: 15px;
+            background: white;
+            border-top: 1px solid #e0e0e0;
+            display: flex;
+            gap: 10px;
+        }
+
+        .chat-input input {
+            flex: 1;
+            padding: 12px 16px;
+            border: 2px solid #e0e0e0;
+            border-radius: 25px;
+            font-size: 14px;
+            outline: none;
+            transition: border-color 0.3s;
+        }
+
+        .chat-input input:focus {
+            border-color: #667eea;
+        }
+
+        .chat-input button {
+            padding: 12px 24px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: bold;
+            transition: transform 0.2s, opacity 0.2s;
+        }
+
+        .chat-input button:hover {
+            transform: scale(1.05);
+        }
+
+        .chat-input button:active {
+            transform: scale(0.95);
+        }
+
+        .chat-input button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .typing-indicator {
+            display: none;
+            padding: 12px 16px;
+            background: white;
+            border-radius: 18px;
+            width: fit-content;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        .typing-indicator.show {
+            display: block;
+        }
+
+        .typing-indicator span {
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            background: #667eea;
+            border-radius: 50%;
+            margin: 0 2px;
+            animation: typing 1.4s infinite;
+        }
+
+        .typing-indicator span:nth-child(2) {
+            animation-delay: 0.2s;
+        }
+
+        .typing-indicator span:nth-child(3) {
+            animation-delay: 0.4s;
+        }
+
+        @keyframes typing {
+            0%, 60%, 100% { transform: translateY(0); }
+            30% { transform: translateY(-10px); }
+        }
+
+        .quick-actions {
+            padding: 10px 15px;
+            background: #f8f9fa;
+            border-top: 1px solid #e0e0e0;
+            display: flex;
+            gap: 8px;
+            overflow-x: auto;
+            flex-wrap: wrap;
+        }
+
+        .quick-action {
+            padding: 8px 14px;
+            background: white;
+            border: 1px solid #e0e0e0;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 12px;
+            white-space: nowrap;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .quick-action:hover {
+            background: #667eea;
+            color: white;
+            border-color: #667eea;
+        }
+
+        .quick-action.danger {
+            border-color: #dc3545;
+            color: #dc3545;
+        }
+
+        .quick-action.danger:hover {
+            background: #dc3545;
+            color: white;
+        }
+
+        .quick-action.warning {
+            border-color: #ffc107;
+            color: #856404;
+        }
+
+        .quick-action.warning:hover {
+            background: #ffc107;
+            color: #856404;
+        }
+
+        .quick-action.info {
+            border-color: #17a2b8;
+            color: #17a2b8;
+        }
+
+        .quick-action.info:hover {
+            background: #17a2b8;
+            color: white;
+        }
+
+        .actions-divider {
+            width: 1px;
+            background: #e0e0e0;
+            margin: 0 5px;
+        }
+
+        .session-info {
+            padding: 8px 15px;
+            background: #e9ecef;
+            font-size: 11px;
+            color: #6c757d;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .reset-btn {
+            background: none;
+            border: none;
+            color: #dc3545;
+            cursor: pointer;
+            font-size: 11px;
+            padding: 3px 8px;
+            border-radius: 10px;
+            transition: background 0.3s;
+        }
+
+        .reset-btn:hover {
+            background: rgba(220, 53, 69, 0.1);
+        }
+
+        /* تنسيق الرسائل الخاصة */
+        .message-content.offer-card {
+            font-family: monospace;
+            font-size: 13px;
+        }
+
+        .message-time {
+            font-size: 10px;
+            color: #999;
+            margin-top: 5px;
+            text-align: left;
+        }
+
+        .message.user .message-time {
+            text-align: right;
+            color: rgba(255,255,255,0.7);
+        }
+    </style>
+</head>
+<body>
+    <div class="chat-container">
+        <div class="chat-header">
+            <div class="chat-header-info">
+                <h1>🤖 SAIA</h1>
+                <p>مساعدك الذكي لتأمين السيارات</p>
+            </div>
+            <div class="stage-badge" id="stageBadge">
+                <span>📍</span>
+                <span id="currentStage">البداية</span>
+            </div>
+        </div>
+
+        <div class="session-info">
+            <span id="sessionInfo">جلسة جديدة</span>
+            <button class="reset-btn" onclick="resetSession()">🔄 بدء جديد</button>
+        </div>
+
+        <div class="chat-messages" id="chatMessages">
+            <div class="message assistant">
+                <div class="message-content">
+                    مرحباً بك في SAIA! 👋
+
+أنا مساعدك الذكي لتأمين السيارات. كيف يمكنني مساعدتك اليوم؟
+
+• تأمين شامل
+• تأمين ضد الغير
+                </div>
+            </div>
+        </div>
+
+        <div class="quick-actions" id="quickActions">
+            <!-- أزرار البداية -->
+            <button class="quick-action" onclick="sendQuickMessage('تأمين شامل')">🛡️ تأمين شامل</button>
+            <button class="quick-action" onclick="sendQuickMessage('تأمين ضد الغير')">📋 ضد الغير</button>
+            
+            <div class="actions-divider"></div>
+            
+            <!-- أزرار التعديل -->
+            <button class="quick-action warning" onclick="sendQuickMessage('تعديل بيانات السيارة')">✏️ تعديل السيارة</button>
+            <button class="quick-action info" onclick="sendQuickMessage('تغيير العرض')">🔄 تغيير العرض</button>
+            <button class="quick-action warning" onclick="sendQuickMessage('رجوع')">⬅️ رجوع</button>
+            
+            <div class="actions-divider"></div>
+            
+            <!-- زر الإلغاء -->
+            <button class="quick-action danger" onclick="sendQuickMessage('الغي الطلب')">❌ إلغاء</button>
+        </div>
+
+        <div class="chat-input">
+            <input type="text" id="messageInput" placeholder="اكتب رسالتك هنا..." onkeypress="handleKeyPress(event)">
+            <button id="sendBtn" onclick="sendMessage()">إرسال</button>
+        </div>
+    </div>
+
+    <script>
+        const API_URL = '/api/ai/chat/';
+        let conversationId = null;
+        let messageCount = 0;
+        let currentStage = 'greeting';
+        let invoiceUrl = null;  // رابط الفاتورة
+        let policyUrl = null;   // رابط الوثيقة
+        
+        // توليد رقم هاتف عشوائي للجلسة
+        const sessionPhone = '96655' + Math.floor(1000000 + Math.random() * 9000000);
+
+        const stageNames = {
+            'greeting': 'البداية',
+            'service_details': 'نوع التأمين',
+            'collecting_vehicle': 'بيانات السيارة',
+            'confirming_vehicle': 'تأكيد السيارة',
+            'showing_offers': 'العروض',
+            'offer_details': 'تفاصيل العرض',
+            'collecting_profile': 'البيانات الشخصية',
+            'confirming_profile': 'تأكيد البيانات',
+            'order_summary': 'ملخص الطلب',
+            'confirmation': 'التأكيد',
+            'payment_pending': 'الدفع',
+            'completed': 'مكتمل'
+        };
+
+        function updateStage(stage) {
+            currentStage = stage;
+            const stageName = stageNames[stage] || stage;
+            document.getElementById('currentStage').textContent = stageName;
+            
+            // تحديث الأزرار السريعة حسب المرحلة
+            updateQuickActions(stage);
+        }
+
+        function updateQuickActions(stage) {
+            const actionsDiv = document.getElementById('quickActions');
+            let html = '';
+            
+            if (stage === 'greeting' || stage === 'service_details') {
+                html = `
+                    <button class="quick-action" onclick="sendQuickMessage('تأمين شامل')">🛡️ تأمين شامل</button>
+                    <button class="quick-action" onclick="sendQuickMessage('تأمين ضد الغير')">📋 ضد الغير</button>
+                `;
+            } else if (stage === 'collecting_vehicle') {
+                html = `
+                    <button class="quick-action" onclick="sendQuickMessage('تويوتا كامري 2023 قيمتها 100000 رقم اللوحة ABC 1234')">📝 مثال بيانات</button>
+                    <button class="quick-action danger" onclick="sendQuickMessage('الغي الطلب')">❌ إلغاء</button>
+                `;
+            } else if (stage === 'confirming_vehicle') {
+                html = `
+                    <button class="quick-action" onclick="sendQuickMessage('نعم صحيحة')">✅ تأكيد</button>
+                    <button class="quick-action warning" onclick="sendQuickMessage('تعديل بيانات السيارة')">✏️ تعديل</button>
+                    <button class="quick-action danger" onclick="sendQuickMessage('الغي الطلب')">❌ إلغاء</button>
+                `;
+            } else if (stage === 'showing_offers') {
+                html = `
+                    <button class="quick-action" onclick="sendQuickMessage('العرض رقم 1')">1️⃣ العرض 1</button>
+                    <button class="quick-action" onclick="sendQuickMessage('العرض رقم 2')">2️⃣ العرض 2</button>
+                    <button class="quick-action" onclick="sendQuickMessage('العرض رقم 3')">3️⃣ العرض 3</button>
+                    <button class="quick-action warning" onclick="sendQuickMessage('تعديل بيانات السيارة')">✏️ تعديل السيارة</button>
+                    <button class="quick-action danger" onclick="sendQuickMessage('الغي الطلب')">❌ إلغاء</button>
+                `;
+            } else if (stage === 'offer_details') {
+                html = `
+                    <button class="quick-action" onclick="sendQuickMessage('موافق على هذا العرض')">✅ موافق</button>
+                    <button class="quick-action info" onclick="sendQuickMessage('أريد عرض آخر')">🔄 عرض آخر</button>
+                    <button class="quick-action warning" onclick="sendQuickMessage('رجوع')">⬅️ رجوع</button>
+                    <button class="quick-action danger" onclick="sendQuickMessage('الغي الطلب')">❌ إلغاء</button>
+                `;
+            } else if (stage === 'collecting_profile') {
+                html = `
+                    <button class="quick-action" onclick="sendQuickMessage('رقم هويتي 1234567890 وتاريخ ميلادي 1990-01-15')">📝 مثال بيانات</button>
+                    <button class="quick-action info" onclick="sendQuickMessage('تغيير العرض')">🔄 تغيير العرض</button>
+                    <button class="quick-action warning" onclick="sendQuickMessage('رجوع')">⬅️ رجوع</button>
+                    <button class="quick-action danger" onclick="sendQuickMessage('الغي الطلب')">❌ إلغاء</button>
+                `;
+            } else if (stage === 'confirming_profile') {
+                html = `
+                    <button class="quick-action" onclick="sendQuickMessage('نعم صحيحة')">✅ تأكيد</button>
+                    <button class="quick-action warning" onclick="sendQuickMessage('تعديل البيانات الشخصية')">✏️ تعديل</button>
+                    <button class="quick-action danger" onclick="sendQuickMessage('الغي الطلب')">❌ إلغاء</button>
+                `;
+            } else if (stage === 'order_summary' || stage === 'confirmation') {
+                html = `
+                    <button class="quick-action" onclick="sendQuickMessage('تأكيد الطلب')">✅ تأكيد الطلب</button>
+                    <button class="quick-action warning" onclick="sendQuickMessage('تعديل بيانات السيارة')">✏️ تعديل السيارة</button>
+                    <button class="quick-action warning" onclick="sendQuickMessage('تعديل البيانات الشخصية')">✏️ تعديل البيانات</button>
+                    <button class="quick-action info" onclick="sendQuickMessage('تغيير العرض')">🔄 تغيير العرض</button>
+                    <button class="quick-action danger" onclick="sendQuickMessage('الغي الطلب')">❌ إلغاء</button>
+                `;
+            } else if (stage === 'payment_pending') {
+                html = `
+                    <button class="quick-action" onclick="downloadInvoice()" style="background: #28a745; color: white; border-color: #28a745;">📄 تحميل الفاتورة PDF</button>
+                    <button class="quick-action" onclick="sendQuickMessage('تم الدفع')">💳 تأكيد الدفع</button>
+                    <button class="quick-action warning" onclick="sendQuickMessage('رجوع')">⬅️ رجوع</button>
+                    <button class="quick-action danger" onclick="sendQuickMessage('الغي الطلب')">❌ إلغاء</button>
+                `;
+            } else if (stage === 'completed') {
+                html = `
+                    <button class="quick-action" onclick="downloadInvoice()" style="background: #28a745; color: white; border-color: #28a745;">📄 تحميل الفاتورة</button>
+                    <button class="quick-action" onclick="downloadPolicy()" style="background: #17a2b8; color: white; border-color: #17a2b8;">📋 تحميل الوثيقة</button>
+                    <button class="quick-action" onclick="resetSession()">🆕 طلب جديد</button>
+                `;
+            } else {
+                html = `
+                    <button class="quick-action warning" onclick="sendQuickMessage('رجوع')">⬅️ رجوع</button>
+                    <button class="quick-action danger" onclick="sendQuickMessage('الغي الطلب')">❌ إلغاء</button>
+                `;
+            }
+            
+            actionsDiv.innerHTML = html;
+        }
+
+        function addMessage(content, isUser = false) {
+            const messagesDiv = document.getElementById('chatMessages');
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${isUser ? 'user' : 'assistant'}`;
+            
+            const contentDiv = document.createElement('div');
+            contentDiv.className = 'message-content';
+            contentDiv.textContent = content;
+            
+            const timeDiv = document.createElement('div');
+            timeDiv.className = 'message-time';
+            timeDiv.textContent = new Date().toLocaleTimeString('ar-SA', {hour: '2-digit', minute: '2-digit'});
+            
+            contentDiv.appendChild(timeDiv);
+            messageDiv.appendChild(contentDiv);
+            messagesDiv.appendChild(messageDiv);
+            messagesDiv.scrollTop = messagesDiv.scrollHeight;
+        }
+
+        function showTyping() {
+            const messagesDiv = document.getElementById('chatMessages');
+            const typingDiv = document.createElement('div');
+            typingDiv.className = 'message assistant';
+            typingDiv.id = 'typingIndicator';
+            
+            const indicator = document.createElement('div');
+            indicator.className = 'typing-indicator show';
+            indicator.innerHTML = '<span></span><span></span><span></span>';
+            
+            typingDiv.appendChild(indicator);
+            messagesDiv.appendChild(typingDiv);
+            messagesDiv.scrollTop = messagesDiv.scrollHeight;
+        }
+
+        function hideTyping() {
+            const typingDiv = document.getElementById('typingIndicator');
+            if (typingDiv) {
+                typingDiv.remove();
+            }
+        }
+
+        function setLoading(loading) {
+            const btn = document.getElementById('sendBtn');
+            const input = document.getElementById('messageInput');
+            btn.disabled = loading;
+            input.disabled = loading;
+            btn.textContent = loading ? '...' : 'إرسال';
+        }
+
+        async function sendMessage() {
+            const input = document.getElementById('messageInput');
+            const message = input.value.trim();
+            
+            if (!message) return;
+            
+            // عرض رسالة المستخدم
+            addMessage(message, true);
+            input.value = '';
+            messageCount++;
+            
+            // عرض مؤشر الكتابة
+            showTyping();
+            setLoading(true);
+            
+            try {
+                const response = await fetch(API_URL, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        message: message,
+                        conversation_id: conversationId,
+                        phone: sessionPhone
+                    })
+                });
+                
+                const data = await response.json();
+                
+                // حفظ معلومات الجلسة
+                if (data.conversation_id) {
+                    conversationId = data.conversation_id;
+                }
+                
+                // تحديث المرحلة
+                if (data.stage) {
+                    updateStage(data.stage);
+                }
+                
+                // حفظ روابط الفاتورة والوثيقة
+                if (data.invoice_url) {
+                    invoiceUrl = data.invoice_url;
+                }
+                if (data.policy_url) {
+                    policyUrl = data.policy_url;
+                }
+                
+                // تحديث معلومات الجلسة
+                document.getElementById('sessionInfo').textContent = 
+                    `الجلسة: ${conversationId ? conversationId.substring(0, 12) : 'جديدة'}... | الرسائل: ${messageCount}`;
+                
+                // إخفاء مؤشر الكتابة
+                hideTyping();
+                setLoading(false);
+                
+                // عرض رد المساعد
+                if (data.response) {
+                    addMessage(data.response, false);
+                } else if (data.error) {
+                    addMessage('⚠️ ' + data.error, false);
+                }
+                
+            } catch (error) {
+                hideTyping();
+                setLoading(false);
+                addMessage('⚠️ عذراً، حدث خطأ في الاتصال. يرجى المحاولة مرة أخرى.', false);
+                console.error('Error:', error);
+            }
+        }
+
+        function sendQuickMessage(message) {
+            document.getElementById('messageInput').value = message;
+            sendMessage();
+        }
+
+        function handleKeyPress(event) {
+            if (event.key === 'Enter') {
+                sendMessage();
+            }
+        }
+
+        function downloadInvoice() {
+            if (invoiceUrl) {
+                // فتح رابط التحميل في نافذة جديدة
+                window.open(invoiceUrl, '_blank');
+            } else {
+                alert('لا يوجد فاتورة متاحة للتحميل');
+            }
+        }
+        
+        function downloadPolicy() {
+            if (policyUrl) {
+                window.open(policyUrl, '_blank');
+            } else {
+                alert('لا توجد وثيقة متاحة للتحميل');
+            }
+        }
+
+        function resetSession() {
+            if (confirm('هل تريد بدء محادثة جديدة؟ سيتم مسح المحادثة الحالية.')) {
+                conversationId = null;
+                messageCount = 0;
+                currentStage = 'greeting';
+                invoiceUrl = null;
+                policyUrl = null;
+                
+                // مسح الرسائل
+                const messagesDiv = document.getElementById('chatMessages');
+                messagesDiv.innerHTML = `
+                    <div class="message assistant">
+                        <div class="message-content">
+                            مرحباً بك في SAIA! 👋
+
+أنا مساعدك الذكي لتأمين السيارات. كيف يمكنني مساعدتك اليوم؟
+
+• تأمين شامل
+• تأمين ضد الغير
+                        </div>
+                    </div>
+                `;
+                
+                // إعادة تعيين المرحلة
+                updateStage('greeting');
+                document.getElementById('sessionInfo').textContent = 'جلسة جديدة';
+            }
+        }
+
+        // تركيز على حقل الإدخال عند تحميل الصفحة
+        window.onload = function() {
+            document.getElementById('messageInput').focus();
+            updateStage('greeting');
+        };
+    </script>
+</body>
+</html>
