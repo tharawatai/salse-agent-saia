@@ -1,0 +1,138 @@
+digraph SAIA_Database {
+    // إعدادات المخطط
+    rankdir=TB;
+    node [shape=record, fontname="Arial"];
+    edge [fontname="Arial", fontsize=10];
+    
+    // ألوان المجموعات
+    node [style=filled, fillcolor="#E3F2FD"];
+    
+    // ═══════════════════════════════════════════════════════════════
+    // المستخدمون والمركبات
+    // ═══════════════════════════════════════════════════════════════
+    
+    subgraph cluster_users {
+        label = "المستخدمون والمركبات";
+        style=filled;
+        fillcolor="#FFF3E0";
+        
+        users [label="{<f0> users|user_code\nusername\nnational_id\nphone\nage\ncity\nbirth_date|<pk> id}", fillcolor="#FFE082"];
+        vehicles [label="{<f0> vehicles|plate_no\nbrand\nmodel\nmodel_year\nvehicle_value|<pk> id\n<fk> user_id}", fillcolor="#FFE082"];
+        
+        users:pk -> vehicles:fk [label="owns"];
+    }
+    
+    // ═══════════════════════════════════════════════════════════════
+    // شركات وخدمات التأمين
+    // ═══════════════════════════════════════════════════════════════
+    
+    subgraph cluster_insurance {
+        label = "شركات وخدمات التأمين";
+        style=filled;
+        fillcolor="#E8F5E9";
+        
+        companies [label="{<f0> insurance_companies|company_code\nname_ar\nname_en\nrating_score|<pk> id}", fillcolor="#A5D6A7"];
+        services [label="{<f0> insurance_services|service_code\nname_ar\nservice_type|<pk> id}", fillcolor="#A5D6A7"];
+        offers [label="{<f0> insurance_offers|offer_code\ncoverage_type\nprice_base\nmin_age, max_age\ndeductible_options (JSON)|<pk> id\n<fk1> company_id\n<fk2> service_id}", fillcolor="#81C784"];
+        
+        companies:pk -> offers:fk1 [label="has"];
+        services:pk -> offers:fk2 [label="categorizes"];
+    }
+    
+    // ═══════════════════════════════════════════════════════════════
+    // الطلبات والفواتير
+    // ═══════════════════════════════════════════════════════════════
+    
+    subgraph cluster_orders {
+        label = "الطلبات والفواتير";
+        style=filled;
+        fillcolor="#F3E5F5";
+        
+        orders [label="{<f0> insurance_orders|order_code\ntotal_price\nstatus\nhas_njm_discount|<pk> id\n<fk1> user_id\n<fk2> offer_id\n<fk3> vehicle_id}", fillcolor="#CE93D8"];
+        invoices [label="{<f0> invoices|invoice_no\namount\nstatus\nexpires_at|<pk> id\n<fk> order_id}", fillcolor="#BA68C8"];
+        payments [label="{<f0> payments|transaction_ref\namount\npayment_method\nstatus\ngateway_response (JSON)|<pk> id\n<fk> invoice_id}", fillcolor="#AB47BC"];
+        policies [label="{<f0> policies|policy_no\nstart_date\nend_date\npdf_url|<pk> id\n<fk> order_id}", fillcolor="#9C27B0"];
+        
+        users:pk -> orders:fk1 [label="creates"];
+        offers:pk -> orders:fk2 [label="selected"];
+        vehicles:pk -> orders:fk3 [label="for"];
+        orders:pk -> invoices:fk [label="generates"];
+        orders:pk -> policies:fk [label="results in"];
+        invoices:pk -> payments:fk [label="paid by"];
+    }
+    
+    // ═══════════════════════════════════════════════════════════════
+    // نظام المحادثات
+    // ═══════════════════════════════════════════════════════════════
+    
+    subgraph cluster_conversations {
+        label = "نظام المحادثات";
+        style=filled;
+        fillcolor="#E1F5FE";
+        
+        sessions [label="{<f0> conversation_sessions|session_id (UUID)\nuser_identifier\nchannel\nstatus\ncurrent_stage\nmessage_count\nmetadata (JSON)|<pk> id\n<fk1> user_id\n<fk2> order_id}", fillcolor="#81D4FA"];
+        
+        vehicle_data [label="{<f0> session_vehicle_data|brand, model, year\nvalue, plate_no\nservice_type\nis_confirmed\nis_complete|<pk> id\n<fk1> session_id\n<fk2> vehicle_id}", fillcolor="#4FC3F7"];
+        
+        profile_data [label="{<f0> session_profile_data|national_id\nbirth_date\nfull_name\nphone, email, city\nis_confirmed\nis_complete|<pk> id\n<fk> session_id}", fillcolor="#4FC3F7"];
+        
+        offers_data [label="{<f0> session_offers_data|shown_offers (JSON)\nshown_at\nselected_offer_data (JSON)\nis_confirmed|<pk> id\n<fk1> session_id\n<fk2> selected_offer_id}", fillcolor="#4FC3F7"];
+        
+        messages [label="{<f0> conversation_messages|message_id (UUID)\nrole\nmessage_type\ncontent\nstage_at_message\nextracted_data (JSON)\nai_analysis (JSON)|<pk> id\n<fk> session_id}", fillcolor="#29B6F6"];
+        
+        transitions [label="{<f0> stage_transitions|from_stage\nto_stage\ntrigger_type\ndata_snapshot (JSON)\nduration_seconds|<pk> id\n<fk1> session_id\n<fk2> trigger_message_id}", fillcolor="#29B6F6"];
+        
+        session_results [label="{<f0> session_results|is_order_created\nis_payment_completed\nis_policy_issued\ntotal_amount|<pk> id\n<fk1> session_id\n<fk2> order_id\n<fk3> invoice_id\n<fk4> policy_id}", fillcolor="#039BE5"];
+        
+        analytics [label="{<f0> session_analytics|total_duration_seconds\nuser_messages_count\nstages_visited (JSON)\ntime_per_stage (JSON)\ntotal_modifications|<pk> id\n<fk> session_id}", fillcolor="#0288D1"];
+        
+        mod_events [label="{<f0> session_modification_events|event_type\nstage_at_event\ntarget_stage\ndata_before (JSON)\ndata_after (JSON)|<pk> id\n<fk> session_id}", fillcolor="#0277BD"];
+        
+        users:pk -> sessions:fk1 [label="starts"];
+        orders:pk -> sessions:fk2 [label="generated from"];
+        
+        sessions:pk -> vehicle_data:fk1 [label="has"];
+        sessions:pk -> profile_data:fk [label="has"];
+        sessions:pk -> offers_data:fk1 [label="has"];
+        sessions:pk -> messages:fk [label="contains"];
+        sessions:pk -> transitions:fk1 [label="tracks"];
+        sessions:pk -> session_results:fk1 [label="results in"];
+        sessions:pk -> analytics:fk [label="analyzed by"];
+        sessions:pk -> mod_events:fk [label="has events"];
+        
+        messages:pk -> transitions:fk2 [label="triggers"];
+        vehicles:pk -> vehicle_data:fk2 [label="links to"];
+        offers:pk -> offers_data:fk2 [label="selected in"];
+        
+        session_results:fk2 -> orders:pk [label="links"];
+        session_results:fk3 -> invoices:pk [label="links"];
+        session_results:fk4 -> policies:pk [label="links"];
+    }
+    
+    // ═══════════════════════════════════════════════════════════════
+    // WhatsApp و AI
+    // ═══════════════════════════════════════════════════════════════
+    
+    subgraph cluster_integrations {
+        label = "WhatsApp و AI";
+        style=filled;
+        fillcolor="#FFF9C4";
+        
+        whatsapp [label="{<f0> whatsapp_sessions|phone_number\nwhatsapp_id\nsession_status\nconversation_history (JSON)\ncontext_data (JSON)|<pk> id\n<fk> user_id}", fillcolor="#FFF59D"];
+        
+        threads [label="{<f0> ai_threads|name\nassistant_id|<pk> id\n<fk1> created_by_id\n<fk2> conversation_session_id}", fillcolor="#FFF176"];
+        
+        ai_messages [label="{<f0> ai_messages|message_type\ncontent\nextra_data (JSON)|<pk> id\n<fk> thread_id}", fillcolor="#FFEE58"];
+        
+        gateway_config [label="{<f0> payment_gateway_configs|gateway_type\napi_key\nis_active\nis_test_mode|<pk> id}", fillcolor="#FFEB3B"];
+        
+        users:pk -> whatsapp:fk [label="uses"];
+        users:pk -> threads:fk1 [label="creates"];
+        sessions:pk -> threads:fk2 [label="linked"];
+        threads:pk -> ai_messages:fk [label="contains"];
+    }
+    
+    // ملاحظات
+    label = "\nهيكلية قاعدة بيانات SAIA\nنظام التأمين الذكي\n22 جدول | PostgreSQL | Django ORM";
+    fontsize = 20;
+}

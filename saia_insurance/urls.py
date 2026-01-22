@@ -14,6 +14,8 @@ urlpatterns = [
     path('api/ai/', include('insurance_ai.urls')),  # Chat API
     path('chat/', TemplateView.as_view(template_name='chat.html'), name='chat'),  # Chat UI (Legacy)
     path('chat/v2/', TemplateView.as_view(template_name='chat_v2.html'), name='chat_v2'),  # Chat UI v2 (New API)
+    path('chat/app/', TemplateView.as_view(template_name='chat_app.html'), name='chat_app'),  # Chat UI v3 (Modern Interface)
+    path('', TemplateView.as_view(template_name='chat_app.html'), name='home'),  # Default to modern interface
 ]
 
 if settings.DEBUG:

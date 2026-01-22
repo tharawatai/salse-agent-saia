@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>كونكورد - سايا المساعد الذكي</title>
+
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- Styles -->
+    <link rel="stylesheet" href="/static/css/chat-app.css">
+</head>
+
+<body>
+    <!-- Mobile Menu Toggle -->
+    <button class="mobile-menu-toggle" id="mobileMenuToggle">
+        ☰
+    </button>
+
+    <!-- Main App Container -->
+    <div class="chat-app-container">
+
+        <!-- ============================================
+             SIDEBAR - Conversations List
+             ============================================ -->
+        <div class="sidebar">
+            <!-- Sidebar Header -->
+            <div class="sidebar-header">
+                <div class="sidebar-header-info">
+                    <div class="sidebar-logo">🚗</div>
+                    <div class="sidebar-title">
+                        <h1>كونكورد للتأمين</h1>
+                        <p>سايا - المساعد الذكي</p>
+                    </div>
+                </div>
+                <div class="sidebar-actions">
+                    <button class="sidebar-btn primary" id="newConversationBtn" title="محادثة جديدة">
+                        ➕
+                    </button>
+                </div>
+            </div>
+
+            <!-- Search Bar -->
+            <div class="sidebar-search">
+                <div class="search-input-wrapper">
+                    <span class="search-icon">🔍</span>
+                    <input type="text" class="search-input" id="searchInput" placeholder="ابحث في المحادثات...">
+                </div>
+            </div>
+
+            <!-- Filters -->
+            <div class="conversation-filters">
+                <button class="filter-btn active" data-filter="all">الكل</button>
+                <button class="filter-btn" data-filter="active">نشط</button>
+                <button class="filter-btn" data-filter="completed">مكتمل</button>
+                <button class="filter-btn" data-filter="cancelled">ملغي</button>
+            </div>
+
+            <!-- Conversations List -->
+            <div class="conversations-list" id="conversationsList">
+                <!-- Conversations will be rendered here by JavaScript -->
+                <div class="conversations-empty">
+                    <div class="conversations-empty-icon">💬</div>
+                    <div class="conversations-empty-text">لا توجد محادثات حالياً</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ============================================
+             CHAT AREA - Active Conversation
+             ============================================ -->
+        <div class="chat-area">
+
+            <!-- Empty State (shown when no conversation is selected) -->
+            <div class="chat-empty">
+                <div class="chat-empty-icon">🚗</div>
+                <div class="chat-empty-title">مرحباً بك في كونكورد للتأمين</div>
+                <div class="chat-empty-text">
+                    ابدأ محادثة جديدة مع سايا، المساعد الذكي، للحصول على أفضل عروض التأمين على سيارتك
+                </div>
+                <button class="new-conversation-btn" onclick="chatApp.createNewConversation()">
+                    ➕ بدء محادثة جديدة
+                </button>
+            </div>
+
+            <!-- Chat Header (hidden by default) -->
+            <div class="chat-header hidden">
+                <div class="chat-header-info">
+                    <div class="chat-avatar">💬</div>
+                    <div class="chat-title-container">
+                        <h2>محادثة جديدة</h2>
+                        <p>سايا - المساعد الذكي</p>
+                    </div>
+                </div>
+                <div class="chat-header-actions">
+                    <button class="chat-btn" title="معلومات">ℹ️</button>
+                    <button class="chat-btn" title="المزيد">⋮</button>
+                </div>
+            </div>
+
+            <!-- Progress Bar (hidden by default) -->
+            <div class="progress-container hidden">
+                <div class="progress-bar">
+                    <div class="progress-fill" id="progressFill" style="width: 10%"></div>
+                </div>
+                <div class="progress-text">
+                    <span id="progressStage">البداية</span>
+                    <span id="progressPercent">10%</span>
+                </div>
+            </div>
+
+            <!-- Messages Area (hidden by default) -->
+            <div class="chat-messages hidden" id="chatMessages">
+                <!-- Messages will be rendered here by JavaScript -->
+            </div>
+
+            <!-- Quick Actions (hidden by default) -->
+            <div class="quick-actions hidden" id="quickActions">
+                <button class="quick-action"
+                    onclick="chatApp.sendMessage(); event.target.previousElementSibling.value='تأمين شامل'">
+                    🛡️ تأمين شامل
+                </button>
+                <button class="quick-action"
+                    onclick="chatApp.sendMessage(); event.target.previousElementSibling.value='تأمين ضد الغير'">
+                    📋 ضد الغير
+                </button>
+                <button class="quick-action"
+                    onclick="chatApp.sendMessage(); event.target.previousElementSibling.value='تأمين شامل بلس'">
+                    ⭐ شامل بلس
+                </button>
+            </div>
+
+            <!-- Chat Input (hidden by default) -->
+            <div class="chat-input hidden">
+                <input type="text" id="messageInput" placeholder="اكتب رسالتك هنا..." autocomplete="off">
+                <button class="send-btn" id="sendBtn">
+                    ➤
+                </button>
+            </div>
+
+        </div>
+
+    </div>
+
+    <!-- JavaScript -->
+    <script src="/static/js/chat-app.js"></script>
+</body>
+
+</html>

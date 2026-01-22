@@ -8,7 +8,7 @@ from typing import Dict, Any, Optional, List
 from dataclasses import dataclass
 from enum import Enum
 
-from google import genai
+import google.generativeai as genai
 from django.conf import settings
 
 logger = logging.getLogger(__name__)
@@ -65,17 +65,18 @@ class AIIntentAnalyzer:
     """محلل النية الذكي باستخدام Gemini"""
     
     def __init__(self):
-        self.client = None
-        self.model_id = 'gemini-2.0-flash'
+        self.model = None
+        self.model_id = 'gemini-2.0-flash-exp'
         self._init_model()
     
     def _init_model(self):
-        """Initialize Gemini client"""
+        """Initialize Gemini model"""
         try:
             gemini_key = getattr(settings, 'GEMINI_API_KEY', None)
             if gemini_key:
-                self.client = genai.Client(api_key=gemini_key)
-                logger.info("AI Intent Analyzer initialized with the new google-genai SDK")
+                genai.configure(api_key=gemini_key)
+                self.model = genai.GenerativeModel(self.model_id)
+                logger.info("AI Intent Analyzer initialized with google.generativeai")
             else:
                 logger.warning("GEMINI_API_KEY not found - AI analysis disabled")
         except Exception as e:
@@ -97,7 +98,7 @@ class AIIntentAnalyzer:
             context_data: البيانات المجمعة
             available_services: الخدمات المتوفرة من DB
         """
-        if not self.client:
+        if not self.model:
             return self._fallback_analysis(message, current_stage)
         
         try:
@@ -105,13 +106,12 @@ class AIIntentAnalyzer:
                 message, current_stage, context_data, available_services
             )
             
-            response = self.client.models.generate_content(
-                model=self.model_id,
-                contents=prompt,
-                config={
-                    'temperature': 0.2,
-                    'max_output_tokens': 500,
-                }
+            response = self.model.generate_content(
+                prompt,
+                generation_config=genai.types.GenerationConfig(
+                    temperature=0.2,
+                    max_output_tokens=500,
+                )
             )
             
             result = self._parse_response(response.text, message, current_stage)

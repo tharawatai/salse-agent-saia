@@ -13,10 +13,23 @@ BASE_DIR = Path(__file__).resolve().parent.parent.parent
 
 # Security
 SECRET_KEY = os.getenv('SECRET_KEY')
-ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', 'localhost,127.0.0.1').split(',')
+ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', 'localhost,127.0.0.1,concord-saia.bineyes.com,www.concord-saia.bineyes.com').split(',')
 
 # Base URL for generating full links
 BASE_URL = os.getenv('BASE_URL', 'http://127.0.0.1:8000')
+
+# CSRF Settings for domain
+CSRF_TRUSTED_ORIGINS = [
+    'https://concord-saia.bineyes.com',
+    'https://www.concord-saia.bineyes.com',
+    'http://localhost:8000',
+    'http://127.0.0.1:8000'
+]
+
+# Session Cookie Settings
+SESSION_COOKIE_SECURE = os.getenv('DJANGO_ENV', 'development') == 'production'
+CSRF_COOKIE_SECURE = os.getenv('DJANGO_ENV', 'development') == 'production'
+SECURE_SSL_REDIRECT = False  # Nginx handles SSL
 # Application definition
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -183,7 +196,7 @@ USE_TZ = True
 # Static files
 STATIC_URL = '/static/'
 STATIC_ROOT = BASE_DIR / 'staticfiles'
-# STATICFILES_DIRS = [BASE_DIR / 'static']  # تعطيل مؤقتاً
+STATICFILES_DIRS = [BASE_DIR / 'static']  # Enable for serving static files
 # STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'  # تعطيل مؤقتاً
 
 # Media files

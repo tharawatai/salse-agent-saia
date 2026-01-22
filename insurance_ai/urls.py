@@ -16,6 +16,15 @@ from .chat_views import (
     PolicyPDFView
 )
 
+# Conversations Management API
+from .conversations_api import (
+    ConversationsListAPIView,
+    ConversationDetailAPIView,
+    ConversationDeleteAPIView,
+    ConversationsSearchAPIView,
+    ConversationsStatsAPIView
+)
+
 # New Ninja API (django_ai_assistant compatible)
 from .api.views import api as ninja_api
 
@@ -31,6 +40,13 @@ urlpatterns = [
     # PDF Downloads
     path('invoices/<int:invoice_id>/pdf/', InvoicePDFView.as_view(), name='invoice-pdf'),
     path('policies/<int:policy_id>/pdf/', PolicyPDFView.as_view(), name='policy-pdf'),
+    
+    # ==================== Conversations Management API ====================
+    path('conversations/', ConversationsListAPIView.as_view(), name='conversations-list'),
+    path('conversations/search/', ConversationsSearchAPIView.as_view(), name='conversations-search'),
+    path('conversations/stats/', ConversationsStatsAPIView.as_view(), name='conversations-stats'),
+    path('conversations/<str:conversation_id>/', ConversationDetailAPIView.as_view(), name='conversation-detail'),
+    path('conversations/<str:conversation_id>/delete/', ConversationDeleteAPIView.as_view(), name='conversation-delete'),
     
     # ==================== New Ninja API ====================
     # متوافق مع django_ai_assistant
